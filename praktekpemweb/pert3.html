@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>belajar js pemula</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style3.css">
+
+</head>
+<body>
+    <div class="container mt-5 mb-5">
+        <div class="card shadow p-4">
+            <div class="card-body">
+                <h1 id = "judul" class = "text-center mb-3"> Daftar Mahasiswa Informatika</h1>
+                <p id = "deskripsi" class = "text-center text-secondary">Belajar Manipulasi DOM dengan JavaScript</p>
+
+                <div class = "text-center mb-5">
+                    <button id = "btUbah" class="btn btn-primary btn-sm">Login</button>
+                    <button id = "btTambah" class="btn btn-secondary btn-sm">Daftar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table id = "dataMahasiswa" class="table table-bordered table-hover text-center">
+  <thead class = "table-dark">
+    <tr>
+      <th scope="col">No</th>
+      <th scope="col">Nama</th>
+      <th scope="col">Prodi</th>
+      <th scope="col">Angkatan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1</th>
+      <td>Freya</td>
+      <td>Ilmu Komunikasi</td>
+      <td>2024</td>
+    </tr>
+    <tr>
+      <th scope="row">2</th>
+      <td>Zhinta</td>
+      <td>Informatika</td>
+      <td>2025</td>
+    </tr>
+    <tr>
+      <th scope="row">3</th>
+      <td>Cepio</td>
+      <td>DKV</td>
+      <td>2022</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+
+<script>
+    let judul = document.getElementById("judul")
+    let deskripsi = document.getElemenById("deskripsi")
+    let btUbah = document.getElemenById("btUbah")
+    let btTambah = document.getElemenById("btTambah")
+     let dataMahasiswa = document.getElemenById("dataMahasiswa")
+
+    // event tombol ubah judul
+    btUbah.addEventListener("click", function(){
+
+    }
+
+    )
+
+
+</script>
+</body>
+</html>

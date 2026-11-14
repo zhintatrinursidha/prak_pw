@@ -1,0 +1,10 @@
+body {
+    background-color: rgb(10, 83, 116);
+}
+
+#dataMahasiswa {
+    width: 80%;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}

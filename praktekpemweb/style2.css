@@ -1,0 +1,58 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:greenyellow;
+}
+
+#website {
+    color: orange;
+    background-color:gray;
+}
+
+.semua {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 750px;
+    height: 900px;
+}
+
+.Heading {
+    display: flex;
+    background-color:blue;
+}
+
+.Navbar {
+    width: 250px;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.Isi {
+    display: flex;
+    background-color:lightblue;
+}
+
+.Judul {
+    width: 500px;
+    margin-left: 20px;
+}
+
+.Paragraf {
+    margin-top: 50px;
+    margin-left: 20px;
+}
+
+#gambar {
+    width: 250px;
+    height: 250px;
+}
+
+.Footer{
+    display: flex;
+    align-items: center;
+    height: 70px;
+    background-color: rgb(25, 176, 126);
+    
+}

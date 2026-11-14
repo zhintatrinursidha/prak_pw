@@ -1,0 +1,148 @@
+//  Bagian 1 · JavaScript dasar 
+
+// 1a. Variabel: string dan number
+var namaKota = 'Yogyakarta';
+var tinggiMerapi = 2910; // meter (perkiraan setelah erupsi 2010)
+print('Kota:', namaKota);
+print('Tinggi Merapi (km):', tinggiMerapi / 1000);
+
+// 1b. List: indeks dimulai dari 0
+var bandRGB = ['B4', 'B3', 'B2'];
+print('Band merah:', bandRGB[0]);
+print('Band biru:', bandRGB[2]);
+print('Jumlah band RGB:', bandRGB.length);
+
+// 1c. Dictionary (object): pasangan kunci-nilai
+var sentinel2 = {
+  satelit: 'Sentinel-2',
+  resolusiMeter: 10,
+  revisitHari: 5
+};
+print('Resolusi Sentinel-2 (m):', sentinel2.resolusiMeter);
+print(sentinel2);
+
+// 1d. Function: mengubah DN Sentinel-2 menjadi reflektansi
+var keReflektan = function(dn) {
+  return dn * 0.0001;
+};
+print('DN 1543 menjadi reflektansi:', keReflektan(1543));
+
+
+// ===== Bagian 2 · Geometri dan peta =====
+
+var tugu = ee.Geometry.Point([110.3671, -7.7829]); 
+var merapi = ee.Geometry.Point([110.44611, -7.54139]); 
+print('Titik Tugu:', tugu);
+
+print('Jarak Tugu ke puncak Merapi (km):', tugu.distance(merapi).divide(1000));
+Map.centerObject(tugu, 11);
+
+
+// ===== Bagian 3 · Memilih satu citra Sentinel-2 =====
+
+var s2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED');
+
+var citra = ee.Image(
+  s2.filterBounds(tugu)
+    .filterDate('2025-06-01', '2025-10-01')
+    .filter(ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 1))
+    .sort('CLOUDY_PIXEL_PERCENTAGE')
+    .first()
+);
+
+print('Citra terpilih:', citra);
+print('ID citra:', citra.id());
+
+var tanggal = ee.Date(citra.get('system:time_start'));
+print('Tanggal akuisisi:', tanggal.format('YYYY-MM-dd'));
+print('Satelit:', citra.get('SPACECRAFT_NAME'));
+print('Tile MGRS:', citra.get('MGRS_TILE'));
+print('Tutupan awan (%):', citra.get('CLOUDY_PIXEL_PERCENTAGE'));
+print('Nama band:', citra.bandNames());
+
+// Ukuran piksel: tanyakan per band, karena tiap band bisa berbeda
+print('Ukuran piksel B2 (m):', citra.select('B2').projection().nominalScale());
+print('Ukuran piksel B5 (m):', citra.select('B5').projection().nominalScale());
+print('Ukuran piksel B1 (m):', citra.select('B1').projection().nominalScale());
+
+// --- TUGAS 1: citra musim hujan (Jan-Mar 2025) ---
+var citraHujan = ee.Image(
+  s2.filterBounds(tugu)
+    .filterDate('2025-01-01', '2025-04-01')
+    .filter(ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 1))
+    .sort('CLOUDY_PIXEL_PERCENTAGE')
+    .first()
+);
+
+print('--- TUGAS 1: Musim hujan ---');
+print('ID musim hujan:', citraHujan.id());
+print('Tanggal musim hujan:', ee.Date(citraHujan.get('system:time_start')).format('YYYY-MM-dd'));
+print('Tutupan awan hujan (%):', citraHujan.get('CLOUDY_PIXEL_PERCENTAGE'));
+
+
+// ===== Bagian 4 · Citra true color =====
+
+var visTrue = {
+  bands: ['B4', 'B3', 'B2'],
+  min: 0,
+  max: 3000
+};
+
+Map.addLayer(citra, visTrue, 'Sentinel-2 true color');
+Map.addLayer(citraHujan, visTrue, 'Musim hujan true color');
+Map.addLayer(merapi, {color: 'red'}, 'Puncak Merapi');
+
+Map.addLayer(citra, {bands: ['B8', 'B4', 'B3'], min: 0, max: 4000}, 'False color NIR');
+Map.setCenter(110.446, -7.541, 12);
+
+
+// ===== Bagian 5 · Titik sampel tutupan lahan =====
+
+var titik = ee.FeatureCollection([
+  ee.Feature(air, {label: 'Air'}),
+  ee.Feature(vegetasi, {label: 'Vegetasi'}),
+  ee.Feature(bangunan, {label: 'Bangunan'}),
+  ee.Feature(tanah, {label: 'Tanah terbuka'}),
+  ee.Feature(awan, {label: 'Awan'}),       // TUGAS 2
+  ee.Feature(sawah, {label: 'Sawah'})      // TUGAS 2
+]);
+
+Map.addLayer(titik, {color: 'yellow'}, 'Titik sampel');
+var citraSampel = citraHujan;
+
+
+//  Bagian 6 · Nilai piksel di titik sampel 
+
+var bandTabel = ['B2', 'B3', 'B4', 'B8', 'B11', 'SCL'];
+
+var nilai = citraSampel.select(bandTabel).sampleRegions({
+  collection: titik,
+  properties: ['label'],
+  scale: 10
+});
+
+print('Nilai piksel (DN) di titik sampel:', nilai);
+
+
+//  Bagian 7 · Grafik spectral signature (6 kelas) 
+
+var bandGrafik = ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12'];
+var panjangGelombang = [497, 560, 665, 704, 740, 783, 835, 865, 1614, 2202]; // nm
+var reflektan = citraSampel.select(bandGrafik).multiply(0.0001);
+
+var grafik = ui.Chart.image.regions({
+  image: reflektan,
+  regions: titik,
+  reducer: ee.Reducer.mean(),
+  scale: 10,
+  seriesProperty: 'label',
+  xLabels: panjangGelombang
+}).setChartType('LineChart').setOptions({
+  title: 'Spectral signature tutupan lahan · Sentinel-2',
+  hAxis: {title: 'Panjang gelombang (nm)'},
+  vAxis: {title: 'Reflektansi', viewWindow: {min: 0, max: 0.7}},
+  lineWidth: 3,
+  pointSize: 5
+});
+
+print(grafik);

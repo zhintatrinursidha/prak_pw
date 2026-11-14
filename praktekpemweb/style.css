@@ -1,0 +1,26 @@
+body {
+    background-color: rgb(6, 133, 184);
+}
+#heading1 {
+    color: white;
+}
+#heading2 {
+    font-size: 25px;
+}
+.heading {
+    font-size: 10px;
+}
+.nama1 {
+    color: brown;
+}
+.nama2 {
+    color: pink;
+}
+.kotak1 {
+    weidth: 200px;
+    length: 200px;
+}
+.teks1 {
+    padding: 10px;
+
+}
